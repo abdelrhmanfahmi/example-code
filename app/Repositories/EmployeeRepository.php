@@ -25,11 +25,29 @@ class EmployeeRepository extends BaseRepository
 
         $query = ($filters == false ? $query : $this->filter($query,$filters));
         $query = ($search == false ? $query : $this->search($query,$search));
-        
+
         $query = $query->with($with);
         $query = $query->orderBy($orderBy,$orderType);
 
         $query = $query->role('employee');
+
+        $query = ($paginate ? $query->paginate($count) : $query->get());
+        return $query;
+    }
+
+    public function getManagers($filters = false, $paginate = true , $with = [] , $withCount = [] , $count = 15 , $orderBy = 'created_at' , $orderType = 'asc' , $search = false)
+    {
+        $query = $this->model;
+
+        $orderType = $orderType == '' ? 'asc' : $orderType;
+
+        $query = ($filters == false ? $query : $this->filter($query,$filters));
+        $query = ($search == false ? $query : $this->search($query,$search));
+
+        $query = $query->with($with);
+        $query = $query->orderBy($orderBy,$orderType);
+
+        $query = $query->role('manager');
 
         $query = ($paginate ? $query->paginate($count) : $query->get());
         return $query;

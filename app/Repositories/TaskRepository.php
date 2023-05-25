@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Task;
 use App\Models\EmployeeTask;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 
 class TaskRepository extends BaseRepository
@@ -24,6 +25,11 @@ class TaskRepository extends BaseRepository
             'user_id' => $data['user_id'],
             'task_id' => $data['task_id']
         ]);
+    }
+
+    public function getMyTasks()
+    {
+        return Auth::user()->tasks()->get();
     }
 
 }

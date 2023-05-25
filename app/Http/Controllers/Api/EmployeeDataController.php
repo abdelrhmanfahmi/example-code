@@ -15,14 +15,20 @@ use App\Models\EmployeeTask;
 
 class EmployeeDataController extends Controller
 {
-    public function __construct(private EmployeeRepository $employeeRepository , private TaskRepository $taskRepository)
+    public function __construct(private TaskRepository $taskRepository)
     {
 
     }
     public function getUserTasks()
     {
-        $data = $this->employeeRepository->get([], false , ['department' , 'tasks'] , false , 15 , 'created_at' , 'asc' , false);
-        return EmployeeDataResource::collection($data);
+        $tasks = $this->taskRepository->getMyTasks();
+        return view('userTasks.index' , ['tasks' => $tasks]);
+    }
+
+    public function showUpdateTaskView($id)
+    {
+        $task = $this->taskRepository->find($id);
+        return view('userTasks.edit' , ['task' => $task]);
     }
 
     public function updateUserTasks(UpdateTaskRequest $request , $task)
@@ -30,6 +36,6 @@ class EmployeeDataController extends Controller
         $this->authorize('update_task' , $task);
         $data = $request->validated();
         $this->taskRepository->update($data , $task);
-        return response()->json(['message' => 'Task Updated Successfully']);
+        return redirect()->route('user.task');
     }
 }

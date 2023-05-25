@@ -9,23 +9,31 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('guest', ['except' => 'logout']);
+    }
+
+    public function showLoginPage()
+    {
+        return view('auth.login');
+    }
+
     public function login(LoginRequest $request)
     {
         $data = $request->validated();
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'message' => 'Invalid login details'
-            ], 401);
+        $credentials = $request->except(['_token']);
+
+        if (Auth::attempt($credentials)) {
+            return redirect()->intended('home');
         }
 
-        $user = User::where('email', $data['email'])->firstOrFail();
+        return redirect()->back()->withErrors(['msg' => 'email or password incorrect']);
+    }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ]);
+    public function logout()
+    {
+        Auth::guard('web')->logout();
+        return redirect()->route('login');
     }
 }
